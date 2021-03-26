@@ -65,7 +65,7 @@ HOOK_DEF(int,
             std::string(game_data_dir).append("/files/CarrotJuicer/").append(std::to_string(
                     now)).append("Q.msgpack");
     std::ofstream outStream(outPath);
-    outStream << std::string(src, srcSize); // Remove the first 4 bytes.
+    outStream << std::string(src, srcSize);
     outStream.close();
     LOGI("wrote request to %s", outPath.c_str());
 

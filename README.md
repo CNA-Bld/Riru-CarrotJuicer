@@ -16,6 +16,17 @@ Hopefully useful commands:
 * `adb shell 'su -c rm /data/data/jp.co.cygames.umamusume/files/CarrotJuicer/* && rm -rf /sdcard/CarrotJuicer'`: clears CarrotJuicer folders in data directory and sdcard.
 * `adb shell 'su -c cp -R /data/data/jp.co.cygames.umamusume/files/CarrotJuicer /sdcard/' && adb pull /sdcard/CarrotJuicer`: pulls CarrotJuicer folder, via a temporary directory in sdcard. 
 
+### Requests
+
+Requests (files ending with `Q.msgpack`) are not actually msgpack. The current observation is:
+
+* The first 4 bytes likely represent a little-endian int. We name it `offset`, currently always observed to be 0xA6 (166).
+* The following 52 bytes `[+0x04, +0x38)` never change for a single client, even across sessions. We did not test whether this is per-account or per-client.
+* The following 114 bytes `[+0x38, +0xB0)` are different for each request.
+* All remaining is a standard msgpack message. This starts at `+0xB0` which is exactly `offset + 4`.
+
+To investigate the content, remove the first 170 bytes and use msgpack tools, like `tail -c+171 123456789Q.msgpack | msgpack2json -d`.
+
 ## Build
 
 1. `git clone`
