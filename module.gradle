@@ -1,0 +1,22 @@
+ext {
+    moduleMinRiruApiVersion = 9
+    moduleMinRiruVersionName = "v22.0"
+    moduleRiruApiVersion = 25
+
+    moduleId = "carrotjuicer"
+    moduleName = "CarrotJuicer"
+    moduleAuthor = "CNA-Bld"
+    moduleDescription = "Juice the carrots from Umamusume Pretty Derby."
+    moduleVersion = "v1.0"
+    moduleVersionCode = 1
+
+    moduleProp = [
+            // This ID is used as Magisk module ID, you should never change it
+            id         : moduleId,
+            name       : moduleName,
+            version    : moduleVersion,
+            versionCode: moduleVersionCode.toString(),
+            author     : moduleAuthor,
+            description: moduleDescription,
+    ]
+}

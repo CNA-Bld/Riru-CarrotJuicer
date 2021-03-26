@@ -3,6 +3,8 @@
 #include <riru.h>
 #include <malloc.h>
 #include <cstring>
+#include <pthread.h>
+#include "hook.h"
 
 static int shouldSkipUid(int uid) {
     // By default (if the module does not provide this function in init), Riru will only call
@@ -20,11 +22,14 @@ static void forkAndSpecializePre(
         JNIEnv *env, jclass clazz, jint *uid, jint *gid, jintArray *gids, jint *runtimeFlags,
         jobjectArray *rlimits, jint *mountExternal, jstring *seInfo, jstring *niceName,
         jintArray *fdsToClose, jintArray *fdsToIgnore, jboolean *is_child_zygote,
-        jstring *instructionSet, jstring *appDataDir, jboolean *isTopApp, jobjectArray *pkgDataInfoList,
-        jobjectArray *whitelistedDataInfoList, jboolean *bindMountAppDataDirs, jboolean *bindMountAppStorageDirs) {
+        jstring *instructionSet, jstring *appDataDir, jboolean *isTopApp,
+        jobjectArray *pkgDataInfoList,
+        jobjectArray *whitelistedDataInfoList, jboolean *bindMountAppDataDirs,
+        jboolean *bindMountAppStorageDirs) {
     // Called "before" com_android_internal_os_Zygote_nativeForkAndSpecialize in frameworks/base/core/jni/com_android_internal_os_Zygote.cpp
     // Parameters are pointers, you can change the value of them if you want
     // Some parameters are not exist is older Android versions, in this case, they are null or 0
+    enable_hack = isGame(env, *appDataDir);
 }
 
 static void forkAndSpecializePost(JNIEnv *env, jclass clazz, jint res) {
@@ -33,11 +38,17 @@ static void forkAndSpecializePost(JNIEnv *env, jclass clazz, jint res) {
 
     if (res == 0) {
         // In app process
+        if (enable_hack) {
+            int ret;
+            pthread_t ntid;
+            if ((ret = pthread_create(&ntid, nullptr, hook_native_thread, nullptr))) {
+                LOGE("can't create thread: %s\n", strerror(ret));
+            }
+        }
 
         // When unload allowed is true, the module will be unloaded (dlclose) by Riru
         // If this modules has hooks installed, DONOT set it to true, or there will be SIGSEGV
         // This value will be automatically reset to false before the "pre" function is called
-        riru_set_unload_allowed(true);
     } else {
         // In zygote process
     }
@@ -61,7 +72,6 @@ static void specializeAppProcessPost(
     // When unload allowed is true, the module will be unloaded (dlclose) by Riru
     // If this modules has hooks installed, DONOT set it to true, or there will be SIGSEGV
     // This value will be automatically reset to false before the "pre" function is called
-    riru_set_unload_allowed(true);
 }
 
 static void forkSystemServerPre(
@@ -132,7 +142,9 @@ RiruVersionedModuleInfo *init(Riru *riru) {
     switch (step) {
         case 1: {
             auto core_max_api_version = riru->riruApiVersion;
-            riru_api_version = core_max_api_version <= RIRU_MODULE_API_VERSION ? core_max_api_version : RIRU_MODULE_API_VERSION;
+            riru_api_version =
+                    core_max_api_version <= RIRU_MODULE_API_VERSION ? core_max_api_version
+                                                                    : RIRU_MODULE_API_VERSION;
             if (riru_api_version < 25) {
                 module.moduleInfo.unused = (void *) shouldSkipUid;
             } else {
