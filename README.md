@@ -11,6 +11,8 @@ Currently this only supports Android >= 8.0.
 3. Start the game as usual. The captured packets will be saved into its data directory, `/data/data/jp.co.cygames.umamusume/files/CarrotJuicer/`.
 4. You can investigate the responses with msgpack tools like `msgpack2json -di 123456789R.msgpack`.
 
+[Hakuraku](https://github.com/SSHZ-ORG/hakuraku) has a UI for investigating the captured packets [here](https://hakuraku.sshz.org/#/carrotjuicer).
+
 Hopefully useful commands:
 
 * `adb shell 'su -c rm /data/data/jp.co.cygames.umamusume/files/CarrotJuicer/* && rm -rf /sdcard/CarrotJuicer'`: clears CarrotJuicer folders in data directory and sdcard.
