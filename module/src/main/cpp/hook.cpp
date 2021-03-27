@@ -4,6 +4,7 @@
 #include <dobby.h>
 #include <fstream>
 #include <sys/stat.h>
+#include <chrono>
 
 int isGame(JNIEnv *env, jstring appDataDir) {
     if (!appDataDir)
@@ -30,6 +31,12 @@ int isGame(JNIEnv *env, jstring appDataDir) {
     }
 }
 
+std::string current_time() {
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch());
+    return std::to_string(ms.count());
+}
+
 HOOK_DEF(int,
          LZ4_decompress_safe_ext,
          char *src,
@@ -38,11 +45,8 @@ HOOK_DEF(int,
          int dstCapacity) {
     int ret = orig_LZ4_decompress_safe_ext(src, dst, compressedSize, dstCapacity);
 
-    auto now =
-            std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    auto outPath =
-            std::string(game_data_dir).append("/files/CarrotJuicer/").append(std::to_string(
-                    now)).append("R.msgpack");
+    auto outPath = std::string(game_data_dir).append("/files/CarrotJuicer/")
+            .append(current_time()).append("R.msgpack");
     std::ofstream outStream(outPath);
     outStream << std::string(dst, dstCapacity);
     outStream.close();
@@ -59,11 +63,8 @@ HOOK_DEF(int,
          int dstCapacity) {
     int ret = orig_LZ4_compress_default_ext(src, dst, srcSize, dstCapacity);
 
-    auto now =
-            std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    auto outPath =
-            std::string(game_data_dir).append("/files/CarrotJuicer/").append(std::to_string(
-                    now)).append("Q.msgpack");
+    auto outPath = std::string(game_data_dir).append("/files/CarrotJuicer/")
+            .append(current_time()).append("Q.msgpack");
     std::ofstream outStream(outPath);
     outStream << std::string(src, srcSize);
     outStream.close();
