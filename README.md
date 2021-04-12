@@ -4,7 +4,7 @@ Hooks the decryption function in `libnative.so` of ウマ娘プリティーダ�
 
 ## Usage
 
-Currently this only supports Android >= 8.0.
+Currently this only supports Android >= 8.0 and Android 6.
 
 1. Install [Magisk](https://github.com/topjohnwu/Magisk) and [Riru](https://github.com/RikkaApps/Riru).
 2. Install Riru-CarrotJuicer and reboot.
