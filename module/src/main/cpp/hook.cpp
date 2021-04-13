@@ -93,7 +93,20 @@ void *hook_native_thread(void *arg) {
     LOGI("hook_native_thread: %d", gettid());
 
     void *libdl_handle = dlopen("libdl.so", RTLD_LAZY);
+    LOGI("libdl.so at: %p", libdl_handle);
+    dlerror();
+    char *error = NULL;
     void *__loader_dlopen_addr = dlsym(libdl_handle, "__loader_dlopen");
+    if (__loader_dlopen_addr == NULL) {
+        if ((error = dlerror()) != NULL) {
+            LOGI("dlsym error: %s. Trying to use dlopen instead.", error);  // for Android 6
+            __loader_dlopen_addr = dlsym(libdl_handle, "dlopen");
+            if (__loader_dlopen_addr == NULL && (error = dlerror()) != NULL) {
+                LOGE("dlsym error: %s.", error);
+                return nullptr;
+            }
+        }
+    }
     LOGI("__loader_dlopen at: %p", __loader_dlopen_addr);
     DobbyHook(__loader_dlopen_addr, (void *) new___loader_dlopen,
               (void **) &orig___loader_dlopen);
