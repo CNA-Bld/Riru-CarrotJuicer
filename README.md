@@ -18,6 +18,12 @@ Hopefully useful commands:
 * `adb shell 'su -c rm /data/data/jp.co.cygames.umamusume/files/CarrotJuicer/* && rm -rf /sdcard/CarrotJuicer'`: clears CarrotJuicer folders in data directory and sdcard.
 * `adb shell 'su -c cp -R /data/data/jp.co.cygames.umamusume/files/CarrotJuicer /sdcard/' && adb pull /sdcard/CarrotJuicer`: pulls CarrotJuicer folder, via a temporary directory in sdcard. 
 
+### `race_scenario`
+
+In packets containing races, there is a base64-encoded field, often named `race_scenario`. This includes per-frame and per-chara information in the race.
+
+More details can be found in README of [Hakuraku](https://github.com/SSHZ-ORG/hakuraku). Its web UI is able to parse this field for you.
+
 ### Requests
 
 Requests (files ending with `Q.msgpack`) are not actually msgpack. The current observation is:
