@@ -2,6 +2,8 @@
 
 Hooks the decryption function in `libnative.so` of ウマ娘プリティーダービー (Umamusume Pretty Derby), to allow inspecting the packets.
 
+For Windows, refer to [EXNOA-CarrotJuicer](https://github.com/CNA-Bld/EXNOA-CarrotJuicer).
+
 ## Usage
 
 Currently this only supports Android >= 8.0 and Android 6.

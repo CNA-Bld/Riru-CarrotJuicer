@@ -31,6 +31,14 @@ int isGame(JNIEnv *env, jstring appDataDir) {
     }
 }
 
+void write_file(std::string file_name, char *buffer, int len) {
+    FILE *fp = fopen(file_name.c_str(), "wb");
+    if (fp != nullptr) {
+        fwrite(buffer, 1, len, fp);
+        fclose(fp);
+    }
+}
+
 std::string current_time() {
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch());
@@ -45,12 +53,10 @@ HOOK_DEF(int,
          int dstCapacity) {
     int ret = orig_LZ4_decompress_safe_ext(src, dst, compressedSize, dstCapacity);
 
-    auto outPath = std::string(game_data_dir).append("/files/CarrotJuicer/")
+    auto out_path = std::string(game_data_dir).append("/files/CarrotJuicer/")
             .append(current_time()).append("R.msgpack");
-    std::ofstream outStream(outPath);
-    outStream << std::string(dst, dstCapacity);
-    outStream.close();
-    LOGI("wrote response to %s", outPath.c_str());
+    write_file(out_path, dst, ret);
+    LOGI("wrote response to %s", out_path.c_str());
 
     return ret;
 }
@@ -63,12 +69,10 @@ HOOK_DEF(int,
          int dstCapacity) {
     int ret = orig_LZ4_compress_default_ext(src, dst, srcSize, dstCapacity);
 
-    auto outPath = std::string(game_data_dir).append("/files/CarrotJuicer/")
+    auto out_path = std::string(game_data_dir).append("/files/CarrotJuicer/")
             .append(current_time()).append("Q.msgpack");
-    std::ofstream outStream(outPath);
-    outStream << std::string(src, srcSize);
-    outStream.close();
-    LOGI("wrote request to %s", outPath.c_str());
+    write_file(out_path, src, srcSize);
+    LOGI("wrote request to %s", out_path.c_str());
 
     return ret;
 }
